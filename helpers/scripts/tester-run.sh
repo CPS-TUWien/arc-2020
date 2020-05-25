@@ -5,9 +5,10 @@ source /opt/ros/melodic/setup.bash
 cd ~/catkin_ws/
 source devel/setup.bash
 
-RUN_TIMEOUT=50
-echo "##  execute testcases (timeout $RUN_TIMEOUT seconds)"
-roslaunch testbench wall.launch > /tmp/output/roslaunch.output 2> /tmp/output/roslaunch.error &
+RUN_TIMEOUT=`grep "run_timeout=" /submission/submission.info | cut -d "=" -f 2`
+TESTCASE_LAUNCH=`grep "testcase_launch=" /submission/submission.info | cut -d "=" -f 2`
+echo "##  execute testcases (timeout $RUN_TIMEOUT seconds, launchfile: $TESTCASE_LAUNCH)"
+roslaunch $TESTCASE_LAUNCH test.launch > /tmp/output/roslaunch.output 2> /tmp/output/roslaunch.error &
 sleep 1
 R_PID=`pgrep roslaunch`
 for i in `seq 1 $RUN_TIMEOUT`
@@ -16,14 +17,13 @@ do
     echo -n "$i "
     sleep 1
 done;
+echo ""
 echo "##  killing roslaunch";
 kill $R_PID
 sleep 5
 
 echo "##  copy results"
-rm -rf /output/files/*
 cp -arv /tmp/output/* /output/.
 cp -arv /tmp/recording.bag /output/.
-#mkdir /output/roslog
-#cp -arv /home/tester/.ros/log/latest/ /output/roslog/.
+cp -arv /home/tester/.ros/log/latest/rosout.log /output/.
 

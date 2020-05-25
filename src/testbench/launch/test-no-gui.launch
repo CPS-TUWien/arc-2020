@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-	<include file="$(find racecar_simulator)/launch/simulator-no-gui.launch" />
-
-	<include file="$(find testbench)/launch/test-only.launch" />
-</launch>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(testbench)
+project(testbench_safety)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -20,9 +20,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(testbench_node src/testbench.cpp)
+add_executable(testbench_safety src/testbench.cpp)
 
-target_link_libraries(testbench_node
+target_link_libraries(testbench_safety
   ${catkin_LIBRARIES}
 )
 

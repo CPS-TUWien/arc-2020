@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- Launch a map from the maps folder-->
+	<arg name="map" default="$(find racecar_simulator)/maps/levine.yaml"/>
+	<node pkg="map_server" name="map_server" type="map_server" args="$(arg map)"/>
+
+	<!-- Launch the racecar model -->
+	<include file="$(find racecar_simulator)/launch/racecar_model.launch"/>
+
+	<!-- replay bag file -->
+	<node name="record" pkg="rosbag" type="play" args="/tmp/recording.bag"/>
+
+	<!-- Launch RVIZ -->
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find racecar_simulator)/launch/simulator.rviz" output="screen"/>
+</launch>

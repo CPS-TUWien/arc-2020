@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find racecar_simulator)/launch/simulator-no-gui.launch" />
+
+	<include file="$(find testbench_safety)/launch/test-only.launch" />
+
+	<node name="record" pkg="rosbag" type="record" args="-a -O /tmp/recording gt_pose"/>
+</launch>

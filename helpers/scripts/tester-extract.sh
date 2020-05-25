@@ -19,6 +19,7 @@ else
 fi;
 
 unzip upload.zip
+chmod 0777 * -R 2> /dev/null
 
 if test -e package.xml
 then
@@ -41,7 +42,4 @@ grep "<maintainer" package.xml | grep -v "<!--"
 grep "<author" package.xml | grep -v "<!--"
 
 rm -f upload.zip
-
-
-
 

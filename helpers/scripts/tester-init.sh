@@ -17,21 +17,24 @@ echo "##  copy templates"
 cd ~/catkin_ws/src/
 cp -ar /repo/src/* .
 
-echo "##  build ros template packages"
-cd ~/catkin_ws/
-echo "    (catkin_make output in files build-templates.*)"
-catkin_make > /tmp/output/build-templates.output 2> /tmp/output/build-templates.error
+#echo "##  build ros template packages"
+#cd ~/catkin_ws/
+#echo "    (catkin_make output in files build-templates.*)"
+#catkin_make > /tmp/output/build-templates.output 2> /tmp/output/build-templates.error
 
-echo "##  copy submission files"
+PKG_FOLDER=`grep "pkg_folder=" /submission/submission.info | cut -d "=" -f 2`
+echo "##  copy submission files (to $PKG_FOLDER)"
 cd ~/catkin_ws/src/
-rm -rf wall_follow
-mkdir wall_follow
-cd wall_follow
+rm -rf $PKG_FOLDER
+mkdir $PKG_FOLDER
+cd $PKG_FOLDER
 cp -arv /submission/* .
+test -e scripts && chmod +x scripts/*
 
 echo "##  build ros packages"
 cd ~/catkin_ws/
 echo "    (catkin_make output in files build-package.*)"
 catkin_make > /tmp/output/build-package.output 2> /tmp/output/build-package.error
 
-
+echo "##  copy log output"
+cp -arv /tmp/output/* /output/.

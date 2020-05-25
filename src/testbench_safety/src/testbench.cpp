@@ -1,0 +1,209 @@
+#include <ros/ros.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <nav_msgs/Odometry.h>
+#include <sensor_msgs/LaserScan.h>
+#include <std_msgs/String.h>
+#include <std_msgs/Bool.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/PoseStamped.h>
+
+#define N_RANGES 1080
+#define SPEED_EPS 0.1
+
+class Testbench {
+// The class that handles emergency braking
+public:
+    ros::NodeHandle n;
+    ros::Publisher pose_pub;
+    ros::Publisher key_pub;
+    ros::Subscriber key_sub;
+    ros::Subscriber odom_sub;
+    ros::Subscriber pose_sub;
+    ros::Subscriber collision_sub;
+    ros::Subscriber brake_sub;
+    ros::Timer test_timer;
+    ros::Timer end_timer;
+
+    float pose_x;
+    float pose_y;
+    float pose_yaw;
+    float speed;
+    std::string testcase_name;
+
+    bool exit_node;
+    bool brake_enabled;
+
+public:
+    Testbench() {
+        n = ros::NodeHandle();
+        /*
+        One publisher should publish to the /brake topic with an
+        ackermann_msgs/AckermannDriveStamped brake message.
+
+        One publisher should publish to the /brake_bool topic with a
+        std_msgs/Bool message.
+
+        You should also subscribe to the /scan topic to get the
+        sensor_msgs/LaserScan messages and the /odom topic to get
+        the nav_msgs/Odometry messages
+
+        The subscribers should use the provided odom_callback and 
+        scan_callback as callback methods
+
+        NOTE that the x component of the linear velocity in odom is the speed
+        */
+
+	brake_enabled = false;
+
+        n.getParam("/test/exit_node", exit_node);
+        n.getParam("/test/testcase_name", testcase_name);
+	ROS_INFO("Testbench. Testcase: %s", testcase_name.c_str());
+
+	key_sub = n.subscribe("key", 1, &Testbench::key_callback, this);
+	odom_sub = n.subscribe("odom", 1, &Testbench::odom_callback, this);
+	pose_sub = n.subscribe("gt_pose", 1, &Testbench::pose_callback, this);
+	collision_sub = n.subscribe("collision", 1, &Testbench::collision_callback, this);
+	brake_sub = n.subscribe("brake_bool", 1, &Testbench::brake_callback, this);
+
+	pose_pub = n.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 1);
+	key_pub = n.advertise<std_msgs::String>("key", 10);
+
+	test_timer = n.createTimer(ros::Duration(10.0), &Testbench::timer_callback, this, true);
+	end_timer = n.createTimer(ros::Duration(90.0), &Testbench::end_callback, this, true);
+    }
+
+    void pose_callback(const geometry_msgs::PoseStamped::ConstPtr &pose_msg) {
+	pose_x = pose_msg->pose.position.x;
+	pose_y = pose_msg->pose.position.y;
+    }
+
+    void odom_callback(const nav_msgs::Odometry::ConstPtr &odom_msg) {
+	speed = odom_msg->twist.twist.linear.x;
+
+	if(speed > -SPEED_EPS && speed < SPEED_EPS && brake_enabled) // car stopped while braking
+	{
+		ROS_INFO("Testbench. Car stopped (slower than %f) @ x=%f, y=%f, speed=%f!", SPEED_EPS, pose_x, pose_y, speed);
+		end_test();
+		if(exit_node)
+			ros::shutdown();
+	}
+    }
+
+    void collision_callback(const std_msgs::Bool::ConstPtr &collision_msg) {
+	ROS_INFO("Testbench. Collision @ x=%f, y=%f", pose_x, pose_y);
+	ROS_INFO("Testbench. TESTCASE FAILED!");
+	if(exit_node)
+		ros::shutdown();
+    }
+
+    void brake_callback(const std_msgs::Bool::ConstPtr &brake_msg) {
+	if(brake_msg->data == true && brake_enabled == false)
+	{
+		brake_enabled = true;
+		ROS_INFO("Testbench. Brake enabled @ x=%f, y=%f, speed=%f", pose_x, pose_y, speed);
+	}
+    }
+
+    void key_callback(const std_msgs::String::ConstPtr &key_msg) {
+	if(key_msg->data == "t")
+	{
+		ROS_INFO("Testbench. Key pressed: %s", key_msg->data.c_str());
+		start_test();
+	}
+    }
+
+    void timer_callback(const ros::TimerEvent &timer_event)
+    {
+	ROS_INFO("Testbench. Starting test.");
+	start_test();
+    }
+
+    void end_callback(const ros::TimerEvent &timer_event)
+    {
+	ROS_INFO("Testbench. Timeout reached, stop testcase.");
+	end_test();
+
+	if(exit_node)
+		ros::shutdown();
+    }
+
+    void end_test()
+    {
+	ROS_INFO("Testbench. Ending test.");
+
+        double target_x, target_y, target_range;
+        n.getParam("/test/target_x", target_x);
+        n.getParam("/test/target_y", target_y);
+        n.getParam("/test/target_range", target_range);
+
+	bool x_in_range = false;
+	bool y_in_range = false;
+
+	ROS_INFO("Testbench. Target @ x=%f, y=%f, range=%f", target_x, target_y, target_range);
+	ROS_INFO("Testbench. Pose @ x=%f, y=%f, yaw=%f!", pose_x, pose_y, pose_yaw);
+	if(target_x - target_range/2 < pose_x && pose_x < target_x + target_range/2)
+		x_in_range = true;
+	if(target_y - target_range/2 < pose_y && pose_y < target_y + target_range/2)
+		y_in_range = true;
+
+	if(x_in_range)
+		ROS_INFO("Testbench. Pose x in range (%f, %f)", target_x - target_range/2, target_x + target_range/2);
+	else
+		ROS_INFO("Testbench. Pose x NOT in range (%f, %f)", target_x - target_range/2, target_x + target_range/2);
+	if(y_in_range)
+		ROS_INFO("Testbench. Pose y in range (%f, %f)", target_y - target_range/2, target_y + target_range/2);
+	else
+		ROS_INFO("Testbench. Pose y NOT in range (%f, %f)", target_y - target_range/2, target_y + target_range/2);
+
+	if(x_in_range && y_in_range)
+		ROS_INFO("Testbench. TESTCASE PASSED!");
+	else
+		ROS_INFO("Testbench. TESTCASE FAILED!");
+    }
+
+    void start_test()
+    {
+	ros::Rate loop_rate(10);
+
+	ROS_INFO("Testbench. Starting test.");
+
+	double start_x, start_y, start_yaw;
+	n.getParam("/test/start_x", start_x);
+	n.getParam("/test/start_y", start_y);
+	n.getParam("/test/start_yaw", start_yaw);
+
+	ROS_INFO("Testbench. Set intialpose @ x=%f, y=%f, yaw=%f", start_x, start_y, start_yaw);
+	tf2::Quaternion q;
+	q.setRPY( 0, 0, start_yaw);
+	geometry_msgs::PoseWithCovarianceStamped msg;
+	msg.pose.pose.position.x = start_x;
+	msg.pose.pose.position.y = start_y;
+	tf2::convert(q, msg.pose.pose.orientation);
+	pose_pub.publish(msg);
+	std::string str;
+
+	loop_rate.sleep();
+	std_msgs::String b_msg;
+	str = "b";
+	b_msg.data = str.c_str();
+	key_pub.publish(b_msg); // enable emergengy break
+
+	loop_rate.sleep();
+	std_msgs::String k_msg;
+	str = "k";
+	k_msg.data = str.c_str();
+	key_pub.publish(k_msg); // enable keyboard
+
+	loop_rate.sleep();
+	std_msgs::String w_msg;
+	str = "w";
+	w_msg.data = str.c_str();
+	key_pub.publish(w_msg); // start driving forward
+    }
+};
+int main(int argc, char ** argv) {
+	ros::init(argc, argv, "testbench_name");
+	Testbench tb;
+	ros::spin();
+	return 0;
+}

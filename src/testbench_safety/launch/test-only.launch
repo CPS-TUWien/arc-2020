@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <launch>
-	<node pkg="testbench" name="test" type="testbench_node" output="screen" required="true">
+	<node pkg="testbench_safety" name="test" type="testbench_safety" output="screen" required="true">
 		<rosparam command="load" file="$(find racecar_simulator)/params.yaml"/>
-		<rosparam command="load" file="$(find testbench)/params2.yaml"/>
-		<rosparam param="exit_node">false</rosparam>
+		<rosparam command="load" file="$(find testbench_safety)/params2.yaml"/>
+		<rosparam param="exit_node">true</rosparam>
 	</node>
 
 	<node pkg="safety_node" type="safety_node" name="safety_cpp" output="screen" />

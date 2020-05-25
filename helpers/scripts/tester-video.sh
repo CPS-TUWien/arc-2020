@@ -8,7 +8,7 @@ source devel/setup.bash
 rm -rf /tmp/video.mp4
 killall Xvfb > /dev/null 2> /dev/null # kill orphaned process
 
-RUN_TIMEOUT=50
+RUN_TIMEOUT=`grep "video_timeout=" /submission/submission.info | cut -d "=" -f 2`
 DISP_NUM=46
 echo "##  run rosbag with rviz and record video (timeout $RUN_TIMEOUT seconds)"
 xvfb-run --listen-tcp --server-num $DISP_NUM --auth-file /tmp/xvfb.auth -s "-ac -screen 0 1920x1080x24" /repo/helpers/scripts/tester-launch.sh &
@@ -21,6 +21,7 @@ do
     echo -n "$i "
     sleep 1
 done;
+echo ""
 echo "##  killing roslaunch";
 kill $R_PID
 sleep 2
@@ -33,10 +34,15 @@ do
     echo -n ". "
     sleep 1
 done;
+echo ""
 echo "##  killing ffmpeg";
 kill $F_PID 2>/dev/null
 sleep 2
 
 echo "##  copy video"
 cp -arv /tmp/video.mp4 /output/.
+
+echo "##  compressing rosbag"
+cd /output/
+xz recording.bag
 
