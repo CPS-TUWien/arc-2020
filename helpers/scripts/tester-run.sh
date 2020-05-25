@@ -5,12 +5,9 @@ source /opt/ros/melodic/setup.bash
 cd ~/catkin_ws/
 source devel/setup.bash
 
-rm -rf /tmp/video.mp4
-killall Xvfb > /dev/null 2> /dev/null # kill orphaned process
-
 # execute testcases
 roslaunch testbench wall.launch > /tmp/output/roslaunch.output 2> /tmp/output/roslaunch.error &
-for i in `seq 1 60`
+for i in `seq 1 30`
 do
     echo -n "r:$i "
     sleep 1
@@ -19,6 +16,12 @@ R_PID=`pgrep roslaunch`
 echo "killing roslaunch PID $R_PID";
 kill $R_PID
 
-# copy results
+sleep 2
 
+# copy results
+rm -rf /output/files/*
+cp -arv /tmp/output/* /output/files/.
+cp -arv /tmp/recording.bag /output/files/.
+mkdir /output/files/roslog
+cp -arv /home/tester/.ros/log/latest/ /output/files/roslog/.
 

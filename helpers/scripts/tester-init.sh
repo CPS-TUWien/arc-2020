@@ -14,13 +14,18 @@ source devel/setup.bash
 
 # checkout template git
 cd ~/catkin_ws/src/
-cp -ar /vbox_robot/catkin_ws/src/* .
+cp -ar /repo/src/* .
 
 # build ros template packages
 cd ~/catkin_ws/
 catkin_make
 
 # copy student submission
+cd ~/catkin_ws/src/
+rm -rf wall_follow
+mkdir wall_follow
+cd wall_follow
+cp -arv /submission/* .
 
 # build ros student packages
 cd ~/catkin_ws/

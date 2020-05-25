@@ -13,5 +13,5 @@
 	</node>
 
 	<!--node name="record" pkg="rosbag" type="record" args="-a -o $(find wall_follow)/bagfiles/"/-->
-	<node name="record" pkg="rosbag" type="record" args="-a -O $(find wall_follow)/recording gt_pose"/>
+	<node name="record" pkg="rosbag" type="record" args="-a -O /tmp/recording gt_pose"/>
 </launch>
