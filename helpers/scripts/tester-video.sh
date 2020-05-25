@@ -12,7 +12,8 @@ RUN_TIMEOUT=`grep "video_timeout=" /submission/submission.info | cut -d "=" -f 2
 DISP_NUM=46
 echo "##  run rosbag with rviz and record video (timeout $RUN_TIMEOUT seconds)"
 xvfb-run --listen-tcp --server-num $DISP_NUM --auth-file /tmp/xvfb.auth -s "-ac -screen 0 1920x1080x24" /repo/helpers/scripts/tester-launch.sh &
-tmux new-session -d -s VideoRecording$DISP_NUM "ffmpeg -framerate 15 -f x11grab -video_size 1920x1080 -i :$DISP_NUM -codec:v mpeg2video -b:v 6000k /tmp/video.mp4" &
+# tmux new-session -d -s VideoRecording$DISP_NUM "ffmpeg -framerate 15 -f x11grab -video_size 1920x1080 -i :$DISP_NUM -codec:v mpeg2video -b:v 6000k /tmp/video.mp4 > /tmp/output/ffmpeg.output 2> /tmp/output/ffmpeg.error" &
+tmux new-session -d -s VideoRecording$DISP_NUM "ffmpeg -framerate 15 -f x11grab -video_size 1920x1080 -i :$DISP_NUM -codec:v libx264 -b:v 6000k /tmp/video.mp4" &
 sleep 1
 R_PID=`pgrep roslaunch`
 for i in `seq 1 $RUN_TIMEOUT`
@@ -21,10 +22,6 @@ do
     echo -n "$i "
     sleep 1
 done;
-echo ""
-echo "##  killing roslaunch";
-kill $R_PID
-sleep 2
 
 tmux send-keys -t VideoRecording$DISP_NUM q
 F_PID=`pgrep ffmpeg`
@@ -37,10 +34,16 @@ done;
 echo ""
 echo "##  killing ffmpeg";
 kill $F_PID 2>/dev/null
+
+echo "##  killing roslaunch";
+kill $R_PID
+
+wait
 sleep 2
 
 echo "##  copy video"
 cp -arv /tmp/video.mp4 /output/.
+cp -arv /tmp/output/ffm* /output/.
 
 echo "##  compressing rosbag"
 cd /output/

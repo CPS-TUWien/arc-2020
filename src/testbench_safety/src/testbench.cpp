@@ -66,7 +66,7 @@ public:
 	brake_sub = n.subscribe("brake_bool", 1, &Testbench::brake_callback, this);
 
 	pose_pub = n.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 1);
-	key_pub = n.advertise<std_msgs::String>("key", 10);
+	key_pub = n.advertise<std_msgs::String>("key", 1);
 
 	test_timer = n.createTimer(ros::Duration(10.0), &Testbench::timer_callback, this, true);
 	end_timer = n.createTimer(ros::Duration(90.0), &Testbench::end_callback, this, true);

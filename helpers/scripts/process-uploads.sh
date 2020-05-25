@@ -31,8 +31,8 @@ for grp in `ls`
 do
     for folder in `ls $grp`
     do
-	MYLOG="$grp/$folder/simulation-run.log"
-	MYERR="$grp/$folder/simulation-run.err"
+	MYLOG="$grp/$folder/simulation-run.output"
+	MYERR="$grp/$folder/simulation-run.error"
 	if test -e $MYLOG
 	then
 	    echo "user: $grp - folder: $folder already processed."

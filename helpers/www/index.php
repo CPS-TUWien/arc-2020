@@ -1,4 +1,3 @@
-<h1>ARC simulator</h1>
 <?php
 
 define("PERM_FILE", "/remotesim/.htperms");
@@ -7,7 +6,7 @@ define("SUBMISSION_FOLDER", "/remotesim/uploads/");
 $labs = array(	"safety" 		=> array(	"pkg_folder" => "safety_node",
 							"pkg_name" => "safety_node",
 							"testcase_launch" => "testbench_safety",
-							"run_timeout" => "30",
+							"run_timeout" => "40",
 							"video_timeout" => "40"),
 		"wall_follow" 		=> array(	"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
@@ -127,6 +126,9 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file) && !empty($_GET["dl"]))
     exit;
 }
 
+echo '<h1>191.119 Autonomous Racing Cars (VU 4,0) 2020S</h1>';
+echo '<h3>automatic simulator execution system</h3>';
+
 // --------------------
 
 echo '<div style="float: left; padding: 3px;">';
@@ -186,11 +188,12 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file))
     echo '<strong>file content of '.$g_file.'</strong><br />';
     echo 'size: '.$files[$g_file]["size"].' bytes<br />';
     echo 'mimetype: '.$files[$g_file]["mime"].'<br />';
+    echo 'sha1: '.sha1_file(SUBMISSION_FOLDER."/".$g_user."/".$g_dir."/".$g_file).'<br />';
     echo '<pre>';
-    if($files[$g_file]["mime"] != "text/plain")
+    if($files[$g_file]["mime"] != "text/plain" && $files[$g_file]["mime"] != "text/x-c")
 	echo "file is not text/plain (use download link instead)";
-    elseif($files[$g_file]["size"] >= 1024*20)
-	echo "file larger than 20kiB (use download link instead)";
+    elseif($files[$g_file]["size"] >= 1024*50)
+	echo "file larger than 50kiB (use download link instead)";
     else
 	echo htmlentities(file_get_contents(SUBMISSION_FOLDER."/".$g_user."/".$g_dir."/".$g_file));
     echo '</pre>';
