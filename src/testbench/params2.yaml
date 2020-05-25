@@ -1,0 +1,9 @@
+testcase_name: straight up
+start_x: 0.0
+start_y: 5.0
+start_w: 1.0
+target_x: 8.4
+target_y: 5.0
+target_range: 2
+
+exit_node: true

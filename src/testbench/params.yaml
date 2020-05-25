@@ -1,0 +1,33 @@
+#testcase_name: in hallway
+#start_x: -5.0
+#start_y: 9.0
+#start_yaw: 0.0
+#target_x: 10.1
+#target_y: 9.0
+#target_range: 2
+
+#testcase_name: straight up
+#start_x: 0.0
+#start_y: 5.0
+#start_w: 1.0
+#target_x: 8.4
+#target_y: 5.0
+#target_range: 2
+
+testcase_name: middle of hallway
+start_x: 0.0
+start_y: 8.7
+start_w: 1.0
+target_x: 10.1
+target_y: 8.7
+target_range: 2
+
+#testcase_name: slanting against wall
+#start_x: -6.5
+#start_y: 3.5
+#start_yaw: -0.4
+#target_x: -0.5
+#target_y: 1
+#target_range: 4
+
+exit_node: false

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find racecar_simulator)/launch/simulator-no-gui.launch" />
+	<!--include file="$(find racecar_simulator)/launch/simulator.launch" /-->
+
+	<node pkg="wall_follow" type="wall_follow" name="wall_follow_cpp" output="screen" />
+	<node pkg="wall_follow" type="wall_follow.py" name="wall_follow_py" output="screen" />
+
+	<node pkg="testbench" name="test" type="testbench_node" output="screen" required="true">
+		<rosparam command="load" file="$(find racecar_simulator)/params.yaml"/>
+		<rosparam command="load" file="$(find testbench)/params.yaml"/>
+		<rosparam param="exit_node">true</rosparam>
+	</node>
+
+	<!--node name="record" pkg="rosbag" type="record" args="-a -o $(find wall_follow)/bagfiles/"/-->
+	<node name="record" pkg="rosbag" type="record" args="-a -O $(find wall_follow)/recording gt_pose"/>
+</launch>

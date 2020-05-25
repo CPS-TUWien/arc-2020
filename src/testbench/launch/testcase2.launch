@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+	<include file="$(find racecar_simulator)/launch/simulator-no-gui.launch" />
+
+	<node pkg="testbench" name="test" type="testbench_node" output="screen" required="true">
+		<rosparam command="load" file="$(find racecar_simulator)/params.yaml"/>
+		<rosparam command="load" file="$(find testbench)/params2.yaml"/>
+		<rosparam param="exit_node">true</rosparam>
+	</node>
+
+	<node pkg="safety_node" type="safety_node" name="safety_cpp" output="screen" />
+	<node pkg="safety_node" type="safety_node.py" name="safety_py" output="screen" />
+</launch>

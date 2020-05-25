@@ -1,0 +1,9 @@
+testcase_name: in hallway
+start_x: -5.0
+start_y: 9.0
+start_yaw: 0.0
+target_x: 10.1
+target_y: 9.0
+target_range: 2
+
+exit_node: true

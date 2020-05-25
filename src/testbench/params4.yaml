@@ -1,0 +1,9 @@
+testcase_name: slanting against wall
+start_x: -6.5
+start_y: 3.5
+start_yaw: -0.4
+target_x: -0.5
+target_y: 1
+target_range: 4
+
+exit_node: true
