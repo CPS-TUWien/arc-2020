@@ -31,6 +31,12 @@ cd $PKG_FOLDER
 cp -arv /submission/* .
 test -e scripts && chmod +x scripts/*
 
+MAP=`grep "map=" /submission/submission.info | cut -d "=" -f 2`
+echo "##  setting map (to $MAP)"
+cd ~/catkin_ws/src/
+sed -i "s/levine/$MAP/g" racecar_simulator/launch/simulator-no-gui.launch
+grep "maps/" racecar_simulator/launch/simulator-no-gui.launch
+
 echo "##  build ros packages"
 cd ~/catkin_ws/
 echo "    (catkin_make output in files build-package.*)"
