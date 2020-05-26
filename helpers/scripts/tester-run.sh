@@ -13,13 +13,13 @@ sleep 1
 R_PID=`pgrep roslaunch`
 for i in `seq 1 $RUN_TIMEOUT`
 do
-    kill -0 $R_PID || break
+    kill -0 $R_PID 2> /dev/null || break
     echo -n "$i "
     sleep 1
 done;
 echo ""
 echo "##  killing roslaunch";
-kill $R_PID
+kill $R_PID 2> /dev/null
 sleep 5
 
 echo "##  copy results"

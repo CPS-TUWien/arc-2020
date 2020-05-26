@@ -15,7 +15,12 @@ $labs = array(	"safety" 		=> array(	"pkg_folder" => "safety_node",
 							"video_timeout" => "100")
 	    );
 
-$special_files = array("video.mp4" => "V", "upload.zip" => "Z", "simulation-run.error" => "i", "simulation-run.output" => "i", "submission.info" => "m");
+$special_files = array(	"video.mp4" => array("img" => "video", "info" => "recorded video"),
+			"upload.zip" => array("img" => "packed", "info" => "your uploaded submission archive"),
+			"simulation-run.error" => array("img" => "log", "info" => "main log file of simulator execution (stderr)"),
+			"simulation-run.output" => array("img" => "log", "info" => "main log file of simulator execution (stdout)"),
+			"submission.info" => array("img" => "meta", "info" => "metadata of your submission"),
+		    );
 
 function get_perms($user)
 {
@@ -135,30 +140,36 @@ echo '<!DOCTYPE html>
   <style>
     body {font-family: Arial;}
     table {border-collapse: collapse; border: none;}
-    td,th {border: none;}
+    td,th {border: none; height: 28px;}
     th {background: #ccc;}
     tr:nth-child(even) {background: #F5F5F5;}
     tr:nth-child(odd) {background: #DDDDDD;}
     tr.selected {background: #FFCCCC;}
-    /* a:visited { color: #0000FF; } */
-  h1 {color: red;}
-  p {color: blue;}
+    img {width: 24px; height: 24px; padding-right: 4px; }
+    h1 img {width: 128px; height: 41px; }
+    h1 {color: #DD0000;}
   </style> 
+  <link rel="icon" type="image/png" href="./images/race.png" sizes="128x128">
 </head>
 <body>';
-echo '<h1>191.119 Autonomous Racing Cars (VU 4,0) 2020S</h1>';
+echo '<h1><img src="./images/race_crop.png" alt="racing car" /> 191.119 Autonomous Racing Cars (VU 4,0) 2020S</h1>';
 echo '<h3>automatic simulator execution system</h3>';
 
 // --------------------
 
 echo '<div style="float: left; padding: 3px;">';
 echo '<table border="1">';
-echo '<tr><th>select user</th></tr>';
+echo '<tr><th></th><th>select user</th></tr>';
 foreach($perms as $u)
+{
     if($g_user == $u)
-        echo '<tr class="selected"><td><a href="?user='.$u.'">'.$u.'</a></td></tr>';
+        echo '<tr class="selected">';
     else
-        echo '<tr><td><a href="?user='.$u.'">'.$u.'</a></td></tr>';
+        echo '<tr>';
+    echo '<td><img src="./images/race.png" alt="racing car" /></td>';
+    echo '<td><a href="?user='.$u.'">'.$u.'</a></td>';
+    echo '</tr>';
+}
 echo '</table>';
 echo '</div>';
 
@@ -166,12 +177,48 @@ if(!empty($g_user))
 {
     echo '<div style="float: left; padding: 3px;">';
     echo '<table border="1" style="border-collapse: none;">';
-    echo '<tr><th>select submission</th><th>lab</lab></tr>';
+    echo '<tr><th></th><th>select submission</th><th>lab</lab></tr>';
     foreach($dirs as $d => $details)
+    {
         if($g_dir == $d)
-            echo '<tr class="selected"><td><a href="?user='.$g_user.'&dir='.$d.'">'.date("Y-m-d H:i:s (T)", intval($d)).'</a></td><td>'.$details["lab"].'</td></tr>';
+            echo '<tr class="selected">';
         else
-            echo '<tr><td><a href="?user='.$g_user.'&dir='.$d.'">'.date("Y-m-d H:i:s (T)", intval($d)).'</a></td><td>'.$details["lab"].'</td></tr>';
+            echo '<tr>';
+
+        echo '<td>';
+	$v_exists = file_exists(SUBMISSION_FOLDER."/".$g_user."/".$d."/video.mp4");
+	$l_exists = file_exists(SUBMISSION_FOLDER."/".$g_user."/".$d."/simulation-run.output");
+	$finished = FALSE;
+	if($v_exists)
+	    $finished = TRUE;
+	else
+	{
+	    if($l_exists)
+	    {
+		$content = file_get_contents(SUBMISSION_FOLDER."/".$g_user."/".$d."/simulation-run.output");
+		if(strstr($content, "simulation run completed."))
+		    $finished = TRUE;
+		elseif(strstr($content, "starting simulation run"))
+		    $finished = "running";
+		else
+		    $finished = "other";
+	    }
+	    else
+		$finished = "pending";
+	}
+	if($finished === TRUE)
+	    echo '<img src="./images/book.png" title="execution finished, for details see log files" alt="execution finished, for details see log files" />';
+	elseif($finished === "running")
+	    echo '<img src="./images/rocket.png" title="execution currently running, please wait some minutes until results are available" alt="execution currently running, please wait some minutes until results are available" />';
+	else
+	    echo '<img src="./images/time.png" title="added for batch processing, please wait some minutes until results are available" alt="added for batch processing, please wait some minutes until results are available" />';
+	if($v_exists)
+	    echo '<img src="./images/video.png" title="video file exists" alt="video file exists" />';
+        echo '</td>';
+
+        echo '<td><a href="?user='.$g_user.'&dir='.$d.'">'.date("Y-m-d H:i:s (T)", intval($d)).'</a></td><td>'.$details["lab"].'</td>';
+        echo '</tr>';
+    }
     echo '</table>';
     echo '<br />';
     echo '<form method="post" action="?user='.$g_user.'" enctype="multipart/form-data">';
@@ -193,14 +240,26 @@ if(!empty($g_user) && !empty($g_dir))
     echo '<tr><th> </th><th>select file</th><th>size (bytes)</th><th>mimetype</th><th>download</th></tr>';
     foreach($files as $f => $details)
     {
+	if($details["size"] == 0) // do not list empty files
+	    continue;
         if($g_file == $f)
             echo '<tr class="selected">';
         else
             echo '<tr>';
+
+        echo '<td>';
+	if(strstr($f, ".log"))
+	{
+	    $content = file_get_contents(SUBMISSION_FOLDER."/".$g_user."/".$g_dir."/".$f);
+	    if(strstr($content, "Testbench. TESTCASE FAILED!"))
+		echo '<img src="./images/failed.png" title="TESTCASE FAILED!" alt="TESTCASE FAILED!" />';
+	    if(strstr($content, "Testbench. TESTCASE PASSED!"))
+		echo '<img src="./images/passed.png" title="TESTCASE PASSED!" alt="TESTCASE PASSED!" />';
+	}
         if(isset($special_files[$f]))
-            echo '<td align="center">'.$special_files[$f].'</td>';
-        else
-            echo '<td> </td>';
+            echo '<img src="./images/'.$special_files[$f]["img"].'.png" title="'.$special_files[$f]["info"].'" alt="'.$special_files[$f]["info"].'" />';
+        echo '</td>';
+
         echo '<td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'">'.$f.'</a></td><td>'.$details["size"].'</td><td>'.$details["mime"].'</td><td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'&dl=true">download</a></td>';
 	echo '</tr>';
     }

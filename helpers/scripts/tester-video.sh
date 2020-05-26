@@ -43,7 +43,6 @@ sleep 2
 
 echo "##  copy video"
 cp -arv /tmp/video.mp4 /output/.
-cp -arv /tmp/output/ffm* /output/.
 
 echo "##  compressing rosbag"
 cd /output/
