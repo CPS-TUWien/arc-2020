@@ -15,6 +15,8 @@ $labs = array(	"safety" 		=> array(	"pkg_folder" => "safety_node",
 							"video_timeout" => "100")
 	    );
 
+$special_files = array("video.mp4" => "V", "upload.zip" => "Z", "simulation-run.error" => "i", "simulation-run.output" => "i", "submission.info" => "m");
+
 function get_perms($user)
 {
     $perms = array();
@@ -126,17 +128,35 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file) && !empty($_GET["dl"]))
     exit;
 }
 
+echo '<!DOCTYPE html>
+<html>
+<head>
+  <title>ARC</title>
+  <style>
+    body {font-family: Arial;}
+    table {border-collapse: collapse; border: none;}
+    td,th {border: none;}
+    th {background: #ccc;}
+    tr:nth-child(even) {background: #F5F5F5;}
+    tr:nth-child(odd) {background: #DDDDDD;}
+    tr.selected {background: #FFCCCC;}
+    /* a:visited { color: #0000FF; } */
+  h1 {color: red;}
+  p {color: blue;}
+  </style> 
+</head>
+<body>';
 echo '<h1>191.119 Autonomous Racing Cars (VU 4,0) 2020S</h1>';
 echo '<h3>automatic simulator execution system</h3>';
 
 // --------------------
 
 echo '<div style="float: left; padding: 3px;">';
-echo '<table border="1" style="border-collapse: none;">';
+echo '<table border="1">';
 echo '<tr><th>select user</th></tr>';
 foreach($perms as $u)
     if($g_user == $u)
-        echo '<tr style="background: #ddd"><td><a href="?user='.$u.'"><strong>'.$u.'</strong></a></td></tr>';
+        echo '<tr class="selected"><td><a href="?user='.$u.'">'.$u.'</a></td></tr>';
     else
         echo '<tr><td><a href="?user='.$u.'">'.$u.'</a></td></tr>';
 echo '</table>';
@@ -149,14 +169,14 @@ if(!empty($g_user))
     echo '<tr><th>select submission</th><th>lab</lab></tr>';
     foreach($dirs as $d => $details)
         if($g_dir == $d)
-            echo '<tr style="background: #ddd"><td><a href="?user='.$g_user.'&dir='.$d.'"><strong>'.date("Y-m-d H:i:s (T)", intval($d)).' ('.$d.')</strong></a></td><td>'.$details["lab"].'</td></tr>';
+            echo '<tr class="selected"><td><a href="?user='.$g_user.'&dir='.$d.'">'.date("Y-m-d H:i:s (T)", intval($d)).'</a></td><td>'.$details["lab"].'</td></tr>';
         else
-            echo '<tr><td><a href="?user='.$g_user.'&dir='.$d.'">'.date("Y-m-d H:i:s (T)", intval($d)).' ('.$d.')</a></td><td>'.$details["lab"].'</td></tr>';
+            echo '<tr><td><a href="?user='.$g_user.'&dir='.$d.'">'.date("Y-m-d H:i:s (T)", intval($d)).'</a></td><td>'.$details["lab"].'</td></tr>';
     echo '</table>';
     echo '<br />';
     echo '<form method="post" action="?user='.$g_user.'" enctype="multipart/form-data">';
     echo '<strong>upload new file</strong><br />';
-    echo 'submission archive: <input type="file" name="file" /><br />';
+    echo '<input type="file" name="file" /><br />';
     echo 'lab: <select name="lab">';
     foreach($labs as $l => $details)
 	echo '<option>'.$l.'</option>';
@@ -170,12 +190,20 @@ if(!empty($g_user) && !empty($g_dir))
 {
     echo '<div style="float: left; padding: 3px;">';
     echo '<table border="1" style="border-collapse: none;">';
-    echo '<tr><th>select file</th><th>size (bytes)</th><th>mimetype</th><th>download</th></tr>';
+    echo '<tr><th> </th><th>select file</th><th>size (bytes)</th><th>mimetype</th><th>download</th></tr>';
     foreach($files as $f => $details)
+    {
         if($g_file == $f)
-            echo '<tr style="background: #ddd"><td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'"><strong>'.$f.'</strong></a></td><td>'.$details["size"].'</td><td>'.$details["mime"].'</td><td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'&dl=true">download</a></td></tr>';
+            echo '<tr class="selected">';
         else
-            echo '<tr><td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'">'.$f.'</a></td><td>'.$details["size"].'</td><td>'.$details["mime"].'</td><td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'&dl=true">download</a></td></tr>';
+            echo '<tr>';
+        if(isset($special_files[$f]))
+            echo '<td align="center">'.$special_files[$f].'</td>';
+        else
+            echo '<td> </td>';
+        echo '<td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'">'.$f.'</a></td><td>'.$details["size"].'</td><td>'.$details["mime"].'</td><td><a href="?user='.$g_user.'&dir='.$g_dir.'&file='.$f.'&dl=true">download</a></td>';
+	echo '</tr>';
+    }
     echo '</table>';
     echo '</div>';
 }
@@ -202,5 +230,6 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file))
 
 
 echo "<hr />logged in as user: ".$_SERVER["REMOTE_USER"]."; access for: ".implode(", ", $perms);
+echo '</body></html>';
 
 ?>

@@ -11,7 +11,6 @@
 #define SPEED_EPS 0.1
 
 class Testbench {
-// The class that handles emergency braking
 public:
     ros::NodeHandle n;
     ros::Publisher pose_pub;
@@ -163,8 +162,6 @@ public:
 
     void start_test()
     {
-	ros::Rate loop_rate(10);
-
 	ROS_INFO("Testbench. Starting test.");
 
 	double start_x, start_y, start_yaw;
@@ -182,19 +179,19 @@ public:
 	pose_pub.publish(msg);
 	std::string str;
 
-	loop_rate.sleep();
+	ros::Duration(0.2).sleep();
 	std_msgs::String b_msg;
 	str = "b";
 	b_msg.data = str.c_str();
 	key_pub.publish(b_msg); // enable emergengy break
 
-	loop_rate.sleep();
+	ros::Duration(0.2).sleep();
 	std_msgs::String k_msg;
 	str = "k";
 	k_msg.data = str.c_str();
 	key_pub.publish(k_msg); // enable keyboard
 
-	loop_rate.sleep();
+	ros::Duration(0.2).sleep();
 	std_msgs::String w_msg;
 	str = "w";
 	w_msg.data = str.c_str();
