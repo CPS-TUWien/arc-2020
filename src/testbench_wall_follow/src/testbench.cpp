@@ -117,17 +117,15 @@ public:
 
     void start_test()
     {
-	ros::Rate loop_rate(10);
-
-	ROS_INFO("Testbench. Starting test.");
+	ROS_INFO("Testbench. Enable wall-follow driving contoller.");
 
 	std::string str;
 
-	loop_rate.sleep();
-	std_msgs::String k_msg;
+	ros::Duration(0.2).sleep();
+	std_msgs::String n_msg;
 	str = "n";
-	k_msg.data = str.c_str();
-	key_pub.publish(k_msg); // enable wall-follow driving contoller
+	n_msg.data = str.c_str();
+	key_pub.publish(n_msg); // enable wall-follow driving contoller
     }
 };
 int main(int argc, char ** argv) {

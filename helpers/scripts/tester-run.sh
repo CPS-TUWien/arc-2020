@@ -10,13 +10,16 @@ TESTCASE_LAUNCH=`grep "testcase_launch=" /submission/submission.info | cut -d "=
 echo "##  execute testcases (timeout $RUN_TIMEOUT seconds, launchfile: $TESTCASE_LAUNCH)"
 roslaunch $TESTCASE_LAUNCH test.launch --log > /tmp/output/roslaunch.output 2> /tmp/output/roslaunch.error &
 sleep 1
+iter=1
 R_PID=`pgrep roslaunch`
 for i in `seq 1 $RUN_TIMEOUT`
 do
     kill -0 $R_PID 2> /dev/null || break
-    echo -n "$i "
+    echo -n "$iter "
+    iter=$((iter+1))
     sleep 1
 done;
+echo $iter > /tmp/run.seconds
 echo ""
 echo "##  killing roslaunch";
 kill $R_PID 2> /dev/null

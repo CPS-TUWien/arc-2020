@@ -46,7 +46,7 @@ do
 	    rm -rf /remotesim/output/*
 	    cp $grp/$folder/upload.zip /remotesim/submission/.
 	    cp $grp/$folder/submission.info /remotesim/submission/.
-	    docker run -v /remotesim/repo:/repo:ro -v /remotesim/submission:/submission:rw -v /remotesim/output:/output:rw arc /repo/helpers/scripts/tester-exec.sh > >(tee -a $MYLOG) 2> >(tee -a $MYERR >&2)
+	    docker run --rm -v /remotesim/repo:/repo:ro -v /remotesim/submission:/submission:rw -v /remotesim/output:/output:rw arc /repo/helpers/scripts/tester-exec.sh > >(tee -a $MYLOG) 2> >(tee -a $MYERR >&2)
 	    # manual interactive start:
 	    # docker run -ti -v /remotesim/repo:/repo:ro -v /remotesim/submission:/submission:rw -v /remotesim/output:/output:rw arc bash
 	    mv /remotesim/output/* $grp/$folder/.
