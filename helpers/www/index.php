@@ -3,16 +3,64 @@
 define("PERM_FILE", "/remotesim/.htperms");
 define("SUBMISSION_FOLDER", "/remotesim/uploads/");
 
-$labs = array(	"safety" 		=> array(	"pkg_folder" => "safety_node",
+define("HTML_HEAD", '<!DOCTYPE html>
+<html>
+<head>
+  <title>ARC</title>
+  <style>
+    body {font-family: Arial;}
+    table {border-collapse: collapse; border: none;}
+    td,th {border: none; height: 28px;}
+    th {background: #ccc;}
+    tr:nth-child(even) {background: #F5F5F5;}
+    tr:nth-child(odd) {background: #DDDDDD;}
+    tr.selected {background: #FFCCCC;}
+    img {width: 24px; height: 24px; padding-right: 4px; }
+    h1 img {width: 128px; height: 41px; }
+    h1 {color: #DD0000;}
+  </style> 
+  <link rel="icon" type="image/png" href="./images/race.png" sizes="128x128">
+</head>
+<body>
+<h1><a href="/"><img src="./images/race_crop.png" alt="racing car" /></a> 191.119 Autonomous Racing Cars (VU 4,0) 2020S</h1>
+<h3>automatic simulator execution system</h3>');
+define("HTML_TAIL", '<body></html>');
+
+$labs = array(	"safety" 		=> array(	"info" => "test of emergency break",
+							"pkg_folder" => "safety_node",
 							"pkg_name" => "safety_node",
 							"testcase_launch" => "testbench_safety",
+							"map" => "levine",
 							"run_timeout" => "40",
 							"video_timeout" => "40"),
-		"wall_follow" 		=> array(	"pkg_folder" => "wall_follow",
+		"wall_follow_levine" 	=> array(	"info" => "wall_following on levine map",
+							"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
 							"testcase_launch" => "testbench_wall_follow",
+							"map" => "levine",
 							"run_timeout" => "90",
-							"video_timeout" => "100")
+							"video_timeout" => "100"),
+		"wall_follow_f1_aut" 	=> array(	"info" => "Formula 1 Track - Red Bull Ring",
+							"pkg_folder" => "wall_follow",
+							"pkg_name" => "wall_follow",
+							"testcase_launch" => "testbench_wall_follow",
+							"map" => "f1_aut",
+							"run_timeout" => "90",
+							"video_timeout" => "100"),
+		"wall_follow_f1_esp" 	=> array(	"info" => "Formula 1 Track - Circuit de Barcelona-Catalunya",
+							"pkg_folder" => "wall_follow",
+							"pkg_name" => "wall_follow",
+							"testcase_launch" => "testbench_wall_follow",
+							"map" => "f1_esp",
+							"run_timeout" => "90",
+							"video_timeout" => "100"),
+		"wall_follow_f1_gbr" 	=> array(	"info" => "Formula 1 Track - Silverstone Circuit",
+							"pkg_folder" => "wall_follow",
+							"pkg_name" => "wall_follow",
+							"testcase_launch" => "testbench_wall_follow",
+							"map" => "f1_gbr",
+							"run_timeout" => "90",
+							"video_timeout" => "100"),
 	    );
 
 $special_files = array(	"video.mp4" => array("img" => "video", "info" => "recorded video"),
@@ -109,15 +157,16 @@ if(!empty($_FILES) && !empty($g_user) && !empty($g_lab))
 				    "pkg_name=".$labs[$g_lab]["pkg_name"]."\n".
 				    "pkg_folder=".$labs[$g_lab]["pkg_folder"]."\n".
 				    "testcase_launch=".$labs[$g_lab]["testcase_launch"]."\n".
+				    "map=".$labs[$g_lab]["map"]."\n".
 				    "run_timeout=".$labs[$g_lab]["run_timeout"]."\n".
 				    "video_timeout=".$labs[$g_lab]["video_timeout"]."\n".
 				    ""
 			);
 
     if (!move_uploaded_file($_FILES["file"]["tmp_name"], $target_file))
-	die("Error: Could not move uploaded file.");
+	die(HTML_HEAD.'Error: Could not move uploaded file.<br /><a href="?user='.$g_user.'">go back</a>'.HTML_TAIL);
     else
-	die('Your file was successfully uploaded and added for batch processing.<br />Please wait some minutes until results are available.<br /><a href="?user='.$g_user.'">continue</a>');
+	die(HTML_HEAD.'Your file was successfully uploaded and added for batch processing.<br />Please wait some minutes until results are available.<br /><a href="?user='.$g_user.'">continue</a>'.HTML_TAIL);
 }
 
 if(!empty($g_user) && !empty($g_dir) && !empty($g_file) && !empty($_GET["dl"]))
@@ -133,30 +182,10 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file) && !empty($_GET["dl"]))
     exit;
 }
 
-echo '<!DOCTYPE html>
-<html>
-<head>
-  <title>ARC</title>
-  <style>
-    body {font-family: Arial;}
-    table {border-collapse: collapse; border: none;}
-    td,th {border: none; height: 28px;}
-    th {background: #ccc;}
-    tr:nth-child(even) {background: #F5F5F5;}
-    tr:nth-child(odd) {background: #DDDDDD;}
-    tr.selected {background: #FFCCCC;}
-    img {width: 24px; height: 24px; padding-right: 4px; }
-    h1 img {width: 128px; height: 41px; }
-    h1 {color: #DD0000;}
-  </style> 
-  <link rel="icon" type="image/png" href="./images/race.png" sizes="128x128">
-</head>
-<body>';
-echo '<h1><img src="./images/race_crop.png" alt="racing car" /> 191.119 Autonomous Racing Cars (VU 4,0) 2020S</h1>';
-echo '<h3>automatic simulator execution system</h3>';
 
 // --------------------
 
+echo HTML_HEAD;
 echo '<div style="float: left; padding: 3px;">';
 echo '<table border="1">';
 echo '<tr><th></th><th>select user</th></tr>';
@@ -221,15 +250,6 @@ if(!empty($g_user))
     }
     echo '</table>';
     echo '<br />';
-    echo '<form method="post" action="?user='.$g_user.'" enctype="multipart/form-data">';
-    echo '<strong>upload new file</strong><br />';
-    echo '<input type="file" name="file" /><br />';
-    echo 'lab: <select name="lab">';
-    foreach($labs as $l => $details)
-	echo '<option>'.$l.'</option>';
-    echo '</select><br />';
-    echo 'submit: <input type="submit" value="upload file" />';
-    echo '</form>';
     echo '</div>';
 }
 
@@ -270,6 +290,21 @@ if(!empty($g_user) && !empty($g_dir))
 echo '<div style="clear: both;">';
 echo '</div>';
 
+if(!empty($g_user) && empty($g_dir))
+{
+    echo '<form method="post" action="?user='.$g_user.'" enctype="multipart/form-data">';
+    echo '<strong>upload new submission archive</strong><br />';
+    echo '<input type="file" name="file" /><br />';
+    echo 'lab: <select name="lab">';
+    foreach($labs as $l => $details)
+    {
+	echo '<option value="'.$l.'">'.$l.' ('.$details["info"].')</option>';
+    }
+    echo '</select><br />';
+    echo 'submit: <input type="submit" value="upload file" />';
+    echo '</form>';
+}
+
 if(!empty($g_user) && !empty($g_dir) && !empty($g_file))
 {
     echo '<strong>file content of '.$g_file.'</strong><br />';
@@ -288,7 +323,7 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file))
 
 
 
-echo "<hr />logged in as user: ".$_SERVER["REMOTE_USER"]."; access for: ".implode(", ", $perms);
-echo '</body></html>';
+echo "<hr />logged in as user: ".$_SERVER["REMOTE_USER"]."<br />access for: ".implode(", ", $perms);
+echo HTML_TAIL;
 
 ?>

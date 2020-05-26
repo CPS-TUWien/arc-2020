@@ -230,7 +230,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -274,7 +274,7 @@ Visualization Manager:
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1022
+  Height: 1080
   Hide Left Dock: false
   Hide Right Dock: true
   Image:
@@ -288,6 +288,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: true
-  Width: 1374
-  X: 546
-  Y: 27
+  Width: 1920
+  X: 0
+  Y: 0
