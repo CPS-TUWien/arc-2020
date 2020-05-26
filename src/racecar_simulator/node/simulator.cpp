@@ -11,6 +11,7 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/Imu.h>
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Bool.h>
 
 #include <sensor_msgs/LaserScan.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
@@ -98,6 +99,7 @@ private:
     nav_msgs::OccupancyGrid current_map;
 
     // for obstacle collision
+    ros::Publisher collision_pub;
     int map_width, map_height;
     double map_resolution, origin_x, origin_y;
 
@@ -216,6 +218,10 @@ public:
 
         // Make a publisher for ground truth pose
         pose_pub = n.advertise<geometry_msgs::PoseStamped>(gt_pose_topic, 1);
+
+        // Make a publisher for collisions
+        collision_pub = n.advertise<std_msgs::Bool>("/collision", 1);
+	ROS_INFO("Collision publisher enabled.");
 
         // Start a timer to output the pose
         update_pose_timer = n.createTimer(ros::Duration(update_pose_rate), &RacecarSimulator::update_pose, this);
@@ -381,6 +387,10 @@ public:
 
                         no_collision = false;
                         TTC = true;
+
+                        std_msgs::Bool collision_msg;
+                        collision_msg.data = true;
+                        collision_pub.publish(collision_msg);
 
                         ROS_INFO("Collision detected");
                     }
