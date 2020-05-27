@@ -11,19 +11,24 @@ define("HTML_HEAD", '<!DOCTYPE html>
     body {font-family: Arial;}
     table {border-collapse: collapse; border: none;}
     td,th {border: none; height: 28px;}
-    th {background: #ccc;}
+    th {background: #CCCCCC;}
     tr:nth-child(even) {background: #F5F5F5;}
     tr:nth-child(odd) {background: #DDDDDD;}
     tr.selected {background: #FFCCCC;}
     img {width: 24px; height: 24px; padding-right: 4px; }
     h1 img {width: 128px; height: 41px; }
     h1 {color: #DD0000;}
+    div.tail {font-size: 10pt; background: #DDDDDD; margin-top: 20px;}
+    div.head h3 {background: #CCCCCC; padding: 3px; color: white; margin-top: 0px;}
+    h1 {margin-bottom: 5px;}
   </style> 
   <link rel="icon" type="image/png" href="./images/race.png" sizes="128x128">
 </head>
 <body>
+<div class="head">
 <h1><a href="/"><img src="./images/race_crop.png" alt="racing car" /></a> 191.119 Autonomous Racing Cars (VU 4,0) 2020S</h1>
-<h3>automatic simulator execution system</h3>');
+<h3>automatic simulator execution system</h3>
+</div>');
 define("HTML_TAIL", '<body></html>');
 
 $labs = array(	"safety" 		=> array(	"info" => "test of emergency break",
@@ -79,6 +84,7 @@ $labs = array(	"safety" 		=> array(	"info" => "test of emergency break",
 
 $special_files = array(	"video.mp4" => array("img" => "video", "info" => "recorded video"),
 			"upload.zip" => array("img" => "packed", "info" => "your uploaded submission archive"),
+			"recording.bag.xz" => array("img" => "packed", "info" => "xz-compressed rosbag containing all topics"),
 			"simulation-run.error" => array("img" => "log", "info" => "main log file of simulator execution (stderr)"),
 			"simulation-run.output" => array("img" => "log", "info" => "main log file of simulator execution (stdout)"),
 			"submission.info" => array("img" => "meta", "info" => "metadata of your submission"),
@@ -301,11 +307,9 @@ if(!empty($g_user) && !empty($g_dir))
     echo '</div>';
 }
 
-echo '<div style="clear: both;">';
-echo '</div>';
-
 if(!empty($g_user) && empty($g_dir))
 {
+    echo '<div style="float: left; padding: 3px;">';
     echo '<form method="post" action="?user='.$g_user.'" enctype="multipart/form-data">';
     echo '<strong>upload new submission archive</strong><br />';
     echo '<input type="file" name="file" /><br />';
@@ -317,7 +321,19 @@ if(!empty($g_user) && empty($g_dir))
     echo '</select><br />';
     echo 'submit: <input type="submit" value="upload file" />';
     echo '</form>';
+    echo '</div>';
 }
+
+if(empty($g_user))
+{
+    echo '<div style="float: left; padding: 3px;">';
+    include("help.php");
+    echo '</div>';
+}
+
+echo '<div style="clear: both;">';
+echo '</div>';
+
 
 if(!empty($g_user) && !empty($g_dir) && !empty($g_file))
 {
@@ -337,7 +353,12 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file))
 
 
 
-echo "<hr />logged in as user: ".$_SERVER["REMOTE_USER"]."<br />access for: ".implode(", ", $perms);
+echo '<div class="tail">';
+echo 'logged in as user: '.$_SERVER["REMOTE_USER"].'<br />';
+echo 'access for: '.implode(", ", $perms).'<br />';
+echo 'git hash: '.shell_exec("git rev-parse HEAD").'<br />';
+echo 'server time: '.date("Y-m-d H:i:s (T)").'<br />';
+'</div>';
 echo HTML_TAIL;
 
 ?>

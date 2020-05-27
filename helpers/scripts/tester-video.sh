@@ -48,5 +48,6 @@ cp -arv /tmp/video.mp4 /output/.
 
 echo "##  compressing rosbag"
 cd /output/
+ls -lah recording.bag
 xz recording.bag
 
