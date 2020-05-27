@@ -54,7 +54,7 @@ public:
 	key_pub = n.advertise<std_msgs::String>("key", 10);
 
 	test_timer = n.createTimer(ros::Duration(5.0), &Testbench::timer_callback, this, true);
-	end_timer = n.createTimer(ros::Duration(200.0), &Testbench::end_callback, this, true);
+	end_timer = n.createTimer(ros::Duration(600.0), &Testbench::end_callback, this, true);
     }
 
     void pose_callback(const geometry_msgs::PoseStamped::ConstPtr &pose_msg) {
