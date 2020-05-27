@@ -23,7 +23,7 @@ fi
 
 
 cd /remotesim/repo
-HASH=`git rev-parse HEAD`
+HASH=`git describe --always --dirty --abbrev=99 --exclude '*'`
 
 cd /remotesim/uploads
 

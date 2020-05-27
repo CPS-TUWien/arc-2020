@@ -356,7 +356,7 @@ if(!empty($g_user) && !empty($g_dir) && !empty($g_file))
 echo '<div class="tail">';
 echo 'logged in as user: '.$_SERVER["REMOTE_USER"].'<br />';
 echo 'access for: '.implode(", ", $perms).'<br />';
-echo 'git hash: '.shell_exec("git rev-parse HEAD").'<br />';
+echo 'git hash: '.shell_exec("git describe --always --dirty --abbrev=99 --exclude '*'").'<br />';
 echo 'server time: '.date("Y-m-d H:i:s (T)").'<br />';
 '</div>';
 echo HTML_TAIL;
