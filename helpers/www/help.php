@@ -32,5 +32,10 @@ The list on the right side includes all relevant ros log files (*.log) and the f
 <img src="./images/passed.png" /> Indicates that a logile reported "TESTCASE PASSED!".<br />
 <img src="./images/failed.png" /> Indicates that a logile reported "TESTCASE FAILED!".<br />
 
+<h4>Reproducibility and transparency</h4>
+The relevant source files for this system are available in the following git repository: 
+<a href="https://github.com/oddest-prime/arc-2020" target="_blank">https://github.com/oddest-prime/arc-2020</a><br />
+The current git hash is shown at the bottom section of this page. For every execution the current git hash is logged (simulation-run.output).<br />
+
 <h4>Contact</h4>
 In case of any further questions regarding the automatic simulator execution system contact the lecturer team by email.

@@ -31,49 +31,51 @@ define("HTML_HEAD", '<!DOCTYPE html>
 </div>');
 define("HTML_TAIL", '<body></html>');
 
-$labs = array(	"safety" 		=> array(	"info" => "test of emergency break",
+$labs = array(	"safety" 		=> 	array(	"info" => "test of emergency break",
 							"pkg_folder" => "safety_node",
 							"pkg_name" => "safety_node",
 							"testcase_launch" => "testbench_safety",
 							"map" => "levine",
 							"run_timeout" => "40",
-							"video_timeout" => "40"),
-		"wall_follow_levine" 	=> array(	"info" => "Levine map",
+							"video_timeout" => "40",
+							"show_if" => "*0"),
+		"wall_follow_levine" 	=> 	array(	"info" => "Levine map",
 							"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
 							"testcase_launch" => "testbench_wall_follow",
 							"map" => "levine",
 							"run_timeout" => "90",
-							"video_timeout" => "100"),
-		"wall_follow_circle" 	=> array(	"info" => "Circle track",
+							"video_timeout" => "100",
+							"show_if" => "*0"),
+		"race_circle" 	=> 		array(	"info" => "Circle track",
 							"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
 							"testcase_launch" => "testbench_wall_follow",
 							"map" => "circle",
 							"run_timeout" => "70",
 							"video_timeout" => "80"),
-		"wall_follow_f1_aut" 	=> array(	"info" => "Formula 1 Track - Red Bull Ring",
+		"race_f1_aut" 	=> 		array(	"info" => "Formula 1 Track - Red Bull Ring",
 							"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
 							"testcase_launch" => "testbench_wall_follow",
 							"map" => "f1_aut",
 							"run_timeout" => "120",
 							"video_timeout" => "120"),
-		"wall_follow_f1_esp" 	=> array(	"info" => "Formula 1 Track - Circuit de Barcelona-Catalunya",
+		"race_f1_esp" 	=> 		array(	"info" => "Formula 1 Track - Circuit de Barcelona-Catalunya",
 							"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
 							"testcase_launch" => "testbench_wall_follow",
 							"map" => "f1_esp",
 							"run_timeout" => "120",
 							"video_timeout" => "120"),
-		"wall_follow_f1_gbr" 	=> array(	"info" => "Formula 1 Track - Silverstone Circuit",
+		"race_f1_gbr" 	=> 		array(	"info" => "Formula 1 Track - Silverstone Circuit",
 							"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
 							"testcase_launch" => "testbench_wall_follow",
 							"map" => "f1_gbr",
 							"run_timeout" => "120",
 							"video_timeout" => "120"),
-		"wall_follow_f1_mco" 	=> array(	"info" => "Formula 1 Track - Circuit de Monaco",
+		"race_f1_mco" 	=> 		array(	"info" => "Formula 1 Track - Circuit de Monaco",
 							"pkg_folder" => "wall_follow",
 							"pkg_name" => "wall_follow",
 							"testcase_launch" => "testbench_wall_follow",
@@ -106,6 +108,20 @@ function get_perms($user)
     fclose($handle);
 
     return $perms;
+}
+
+function check_perm($perms, $lab)
+{
+    global $labs;
+    if(empty($labs[$lab]))
+	return false;
+    if(in_array("*all", $perms))
+	return true;
+    if(empty($labs[$lab]["show_if"]))
+	return true;
+    if(in_array($labs[$lab]["show_if"], $perms))
+	return true;
+    return false;
 }
 
 function get_submissions($user, $dir = "")
@@ -162,6 +178,9 @@ if(!in_array($g_lab, array_keys($labs)))
 
 if(!empty($_FILES) && !empty($g_user) && !empty($g_lab))
 {
+    if(!check_perm($perms, $g_lab))
+	die(HTML_HEAD.'Error: Could not upload for this lab.<br /><a href="?user='.$g_user.'">go back</a>'.HTML_TAIL);
+
     $upload_time = time();
     $target_dir = SUBMISSION_FOLDER."/".$g_user."/".$upload_time;
     $target_file = $target_dir."/upload.zip";
@@ -211,6 +230,8 @@ echo '<table border="1">';
 echo '<tr><th></th><th>select user</th></tr>';
 foreach($perms as $u)
 {
+    if($u[0] == "*")
+	continue;
     if($g_user == $u)
         echo '<tr class="selected">';
     else
@@ -316,7 +337,8 @@ if(!empty($g_user) && empty($g_dir))
     echo 'lab: <select name="lab">';
     foreach($labs as $l => $details)
     {
-	echo '<option value="'.$l.'">'.$l.' ('.$details["info"].')</option>';
+	if(check_perm($perms, $l))
+		echo '<option value="'.$l.'">'.$l.' ('.$details["info"].')</option>';
     }
     echo '</select><br />';
     echo 'submit: <input type="submit" value="upload file" />';
